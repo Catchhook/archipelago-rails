@@ -1,0 +1,13 @@
+import { bootArchipelagoIslands } from "@archipelago/react"
+
+<% if @bundler == :esbuild && @auto_registry %>
+import registry from "./registry.generated"
+<% else %>
+// Register your islands here.
+const registry = {
+  // Example:
+  // TeamMembers: TeamMembersIsland
+}
+<% end %>
+
+void bootArchipelagoIslands(registry)

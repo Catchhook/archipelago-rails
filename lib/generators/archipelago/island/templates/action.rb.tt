@@ -1,0 +1,11 @@
+module Islands
+  module <%= component_module %>
+    class <%= operation_class %> < Archipelago::Action
+      authorize { true }
+
+      def perform
+        props message: "Implement <%= operation_class %>"
+      end
+    end
+  end
+end

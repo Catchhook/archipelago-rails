@@ -1,0 +1,14 @@
+import React from "react"
+import { useIslandForm, useIslandProps } from "@archipelago/react"
+
+export default function <%= @component_name %>() {
+  const { props } = useIslandProps()
+  const form = useIslandForm({ initialData: {} })
+
+  return (
+    <div>
+      <pre>{JSON.stringify(props, null, 2)}</pre>
+      <button onClick={() => form.post("<%= operations.first %>")}>Run <%= operations.first %></button>
+    </div>
+  )
+}

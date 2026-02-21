@@ -45,6 +45,14 @@ After `rails g archipelago:install`, you can scaffold frontend bootstrap wiring:
 rails g archipelago:install:react
 ```
 
+The generator writes `.npmrc` with:
+
+```text
+@archipelago-js:registry=https://registry.npmjs.org
+```
+
+This keeps installs reliable across npm, Yarn classic, pnpm, and bun.
+
 By default this runs an interactive wizard with auto-detected defaults
 (bundler, TypeScript, package manager, and local monorepo path).
 

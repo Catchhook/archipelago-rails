@@ -33,7 +33,9 @@ module Archipelago
       end
 
       def print_next_steps
-        say "Install JS packages: yarn add @archipelago/client @archipelago/react"
+        say "If package install fails on Yarn mirror, add to .npmrc:"
+        say "  @archipelago-js:registry=https://registry.npmjs.org"
+        say "Install JS packages: yarn add @archipelago-js/client @archipelago-js/react"
         say "Optional React bootstrap wizard: rails g archipelago:install:react"
         say "Non-interactive mode: rails g archipelago:install:react --interactive=false"
         say "esbuild users get auto-registry wiring by default in install:react"

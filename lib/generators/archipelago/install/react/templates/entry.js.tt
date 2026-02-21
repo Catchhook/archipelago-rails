@@ -1,4 +1,4 @@
-import { bootArchipelagoIslands } from "@archipelago/react"
+import { bootArchipelagoIslands } from "@archipelago-js/react"
 
 <% if @bundler == :esbuild && @auto_registry %>
 import registry from "./registry.generated"

@@ -1,5 +1,5 @@
 import React from "react"
-import { useIslandForm, useIslandProps } from "@archipelago/react"
+import { useIslandForm, useIslandProps } from "@archipelago-js/react"
 
 export default function <%= @component_name %>() {
   const { props } = useIslandProps()

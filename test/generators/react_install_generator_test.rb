@@ -41,6 +41,7 @@ class ReactInstallGeneratorTest < Rails::Generators::TestCase
     package_json = JSON.parse(File.read(File.join(destination_root, "package.json")))
     assert_equal "node app/javascript/archipelago/generate_registry.mjs", package_json.dig("scripts", "archipelago:registry")
     assert_match(/^node app\/javascript\/archipelago\/generate_registry\.mjs && /, package_json.dig("scripts", "build"))
+    assert_file ".npmrc", /@archipelago-js:registry=https:\/\/registry\.npmjs\.org/
   end
 
   def test_generates_typescript_entry_when_requested
@@ -63,5 +64,14 @@ class ReactInstallGeneratorTest < Rails::Generators::TestCase
 
     assert_file "app/javascript/archipelago/entry.jsx", /const registry = \{/
     refute File.exist?(File.join(destination_root, "app/javascript/archipelago/generate_registry.mjs"))
+  end
+
+  def test_does_not_duplicate_scope_registry_when_already_present
+    File.write(File.join(destination_root, ".npmrc"), "@archipelago-js:registry=https://registry.npmjs.org\n")
+
+    run_generator %w[--interactive=false]
+
+    npmrc = File.read(File.join(destination_root, ".npmrc"))
+    assert_equal 1, npmrc.scan("@archipelago-js:registry=").length
   end
 end

@@ -80,7 +80,7 @@ const source = [
   ...imports,
   imports.length > 0 ? "" : "",
 <% if @use_typescript %>
-  "import type { IslandRegistry } from \"@archipelago/react\"",
+  "import type { IslandRegistry } from \"@archipelago-js/react\"",
   "",
   "const registry: IslandRegistry = {",
 <% else %>

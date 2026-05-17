@@ -2,13 +2,13 @@
 
 Gem::Specification.new do |spec|
   spec.name = "archipelago-rails"
-  spec.version = "0.2.0"
+  spec.version = "0.9.0"
   spec.authors = ["Archipelago"]
   spec.email = ["dev@archipelago.local"]
 
   spec.summary = "Server-driven React islands for Rails"
   spec.description = "Inertia-style server-driven props for embedded React islands"
-  spec.homepage = "https://github.com/robrace/archipelago/tree/main/archipelago-rails"
+  spec.homepage = "https://github.com/Catchhook/archipelago-rails"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.2"
 
@@ -16,8 +16,8 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
   spec.metadata = {
     "homepage_uri" => spec.homepage,
-    "source_code_uri" => "https://github.com/robrace/archipelago",
-    "changelog_uri" => "https://github.com/robrace/archipelago/releases"
+    "source_code_uri" => "https://github.com/Catchhook/archipelago-rails",
+    "changelog_uri" => "https://github.com/Catchhook/archipelago-rails/releases"
   }
 
   # Runtime dependency for a Rails engine.

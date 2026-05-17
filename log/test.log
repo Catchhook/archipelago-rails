@@ -1402,3 +1402,103 @@ IslandGeneratorTest: test_generates_action_and_component_files
 ----------------------------------------------------------------
 InstallGeneratorTest: test_generates_initializer_and_islands_dir
 ----------------------------------------------------------------
+Generating image variants require the image_processing gem. Please add `gem "image_processing", "~> 1.2"` to your Gemfile or set `config.active_storage.variant_processor = :disabled`.
+----------------------------------------------------------------
+InstallGeneratorTest: test_generates_initializer_and_islands_dir
+----------------------------------------------------------------
+--------------------------------------------------------------------------------------
+IslandsControllerTest: test_debug_payload_includes_param_metadata_for_registry_actions
+--------------------------------------------------------------------------------------
+Started GET "/islands/__debug" for 127.0.0.1 at 2026-05-16 22:31:32 -0700
+Processing by Archipelago::IslandsController#debug as HTML
+Completed 200 OK in 6ms (Views: 0.3ms | ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.0ms)
+-----------------------------------------------------
+IslandsControllerTest: test_success_response_contract
+-----------------------------------------------------
+Started POST "/islands/TeamMembers/add_member" for 127.0.0.1 at 2026-05-16 22:31:32 -0700
+Processing by Archipelago::IslandsController#create as JSON
+  Parameters: {"email" => "person@example.com", "component" => "TeamMembers", "operation" => "add_member"}
+Completed 200 OK in 1ms (Views: 0.1ms | ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.0ms)
+-----------------------------------------------------
+IslandsControllerTest: test_resolution_failure_is_404
+-----------------------------------------------------
+Started POST "/islands/Unknown/add_member" for 127.0.0.1 at 2026-05-16 22:31:32 -0700
+Processing by Archipelago::IslandsController#create as JSON
+  Parameters: {"component" => "Unknown", "operation" => "add_member"}
+rescue_from handled Archipelago::ResolutionError (Unknown island action) - lib/archipelago/resolver.rb:26:in 'block in Archipelago::Resolver#resolve'
+Completed 404 Not Found in 1ms (ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.0ms)
+-------------------------------------------------------
+IslandsControllerTest: test_forbidden_response_contract
+-------------------------------------------------------
+Started POST "/islands/TeamMembers/forbid" for 127.0.0.1 at 2026-05-16 22:31:32 -0700
+Processing by Archipelago::IslandsController#create as JSON
+  Parameters: {"component" => "TeamMembers", "operation" => "forbid"}
+Completed 403 Forbidden in 0ms (Views: 0.1ms | ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.0ms)
+-----------------------------------------------------------------------------
+ReactInstallGeneratorTest: test_auto_detects_typescript_when_tsconfig_present
+-----------------------------------------------------------------------------
+----------------------------------------------------------------------------
+ReactInstallGeneratorTest: test_generates_entry_and_wires_application_import
+----------------------------------------------------------------------------
+-------------------------------------------------------------------------
+ReactInstallGeneratorTest: test_generates_typescript_entry_when_requested
+-------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+ReactInstallGeneratorTest: test_does_not_duplicate_scope_registry_when_already_present
+--------------------------------------------------------------------------------------
+---------------------------------------------------------
+ReactInstallGeneratorTest: test_can_disable_auto_registry
+---------------------------------------------------------
+--------------------------------------------------------------
+IslandGeneratorTest: test_generates_action_and_component_files
+--------------------------------------------------------------
+Generating image variants require the image_processing gem. Please add `gem "image_processing", "~> 1.2"` to your Gemfile or set `config.active_storage.variant_processor = :disabled`.
+----------------------------------------------------------------
+InstallGeneratorTest: test_generates_initializer_and_islands_dir
+----------------------------------------------------------------
+-------------------------------------------------------
+IslandsControllerTest: test_forbidden_response_contract
+-------------------------------------------------------
+Started POST "/islands/TeamMembers/forbid" for 127.0.0.1 at 2026-05-16 22:48:50 -0700
+Processing by Archipelago::IslandsController#create as JSON
+  Parameters: {"component" => "TeamMembers", "operation" => "forbid"}
+Completed 403 Forbidden in 5ms (Views: 0.2ms | ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.0ms)
+-----------------------------------------------------
+IslandsControllerTest: test_resolution_failure_is_404
+-----------------------------------------------------
+Started POST "/islands/Unknown/add_member" for 127.0.0.1 at 2026-05-16 22:48:50 -0700
+Processing by Archipelago::IslandsController#create as JSON
+  Parameters: {"component" => "Unknown", "operation" => "add_member"}
+rescue_from handled Archipelago::ResolutionError (Unknown island action) - lib/archipelago/resolver.rb:26:in 'block in Archipelago::Resolver#resolve'
+Completed 404 Not Found in 1ms (ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.0ms)
+--------------------------------------------------------------------------------------
+IslandsControllerTest: test_debug_payload_includes_param_metadata_for_registry_actions
+--------------------------------------------------------------------------------------
+Started GET "/islands/__debug" for 127.0.0.1 at 2026-05-16 22:48:50 -0700
+Processing by Archipelago::IslandsController#debug as HTML
+Completed 200 OK in 0ms (Views: 0.1ms | ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.0ms)
+-----------------------------------------------------
+IslandsControllerTest: test_success_response_contract
+-----------------------------------------------------
+Started POST "/islands/TeamMembers/add_member" for 127.0.0.1 at 2026-05-16 22:48:50 -0700
+Processing by Archipelago::IslandsController#create as JSON
+  Parameters: {"email" => "person@example.com", "component" => "TeamMembers", "operation" => "add_member"}
+Completed 200 OK in 0ms (Views: 0.1ms | ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.0ms)
+--------------------------------------------------------------
+IslandGeneratorTest: test_generates_action_and_component_files
+--------------------------------------------------------------
+----------------------------------------------------------------------------
+ReactInstallGeneratorTest: test_generates_entry_and_wires_application_import
+----------------------------------------------------------------------------
+---------------------------------------------------------
+ReactInstallGeneratorTest: test_can_disable_auto_registry
+---------------------------------------------------------
+--------------------------------------------------------------------------------------
+ReactInstallGeneratorTest: test_does_not_duplicate_scope_registry_when_already_present
+--------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------
+ReactInstallGeneratorTest: test_auto_detects_typescript_when_tsconfig_present
+-----------------------------------------------------------------------------
+-------------------------------------------------------------------------
+ReactInstallGeneratorTest: test_generates_typescript_entry_when_requested
+-------------------------------------------------------------------------

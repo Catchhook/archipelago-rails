@@ -1,0 +1,8 @@
+{
+  "name": "dummy",
+  "scripts": {
+    "build": "node app/javascript/archipelago/generate_registry.mjs && esbuild app/javascript/*.* --bundle --outdir=app/assets/builds",
+    "build:watch": "node app/javascript/archipelago/generate_registry.mjs && esbuild app/javascript/*.* --bundle --outdir=app/assets/builds --watch",
+    "archipelago:registry": "node app/javascript/archipelago/generate_registry.mjs"
+  }
+}

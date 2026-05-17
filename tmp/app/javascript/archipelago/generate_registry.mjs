@@ -8,7 +8,7 @@ const archipelagoDir = path.resolve(__dirname)
 const islandsRoot = path.resolve(archipelagoDir, "../islands")
 const outputFile = path.resolve(
   archipelagoDir,
-  "registry.generated.ts"
+  "registry.generated.js"
 )
 const lazy = false
 
@@ -65,7 +65,7 @@ const registryRows = []
 
 if (lazy) {
 
-  imports.push("import { defineIslandLoader, type IslandRegistry } from \"@archipelago-js/react\"")
+  imports.push("import { defineIslandLoader } from \"@archipelago-js/react\"")
 
 
   islandFiles.forEach((absolutePath) => {
@@ -96,8 +96,7 @@ const source = [
   ...imports,
   imports.length > 0 ? "" : "",
 
-  ...(lazy ? [] : ["import type { IslandRegistry } from \"@archipelago-js/react\"", ""]),
-  "const registry: IslandRegistry = {",
+  "const registry = {",
 
   ...registryRows,
   "}",

@@ -110,8 +110,12 @@ module Archipelago
       defined?(ActiveRecord::RecordInvalid) && error.is_a?(ActiveRecord::RecordInvalid)
     end
 
+    def current_user
+      ctx.user
+    end
+
     def maybe_broadcast(payload)
-      stream_name = raw_params[:__stream]
+      stream_name = ctx.stream || raw_params[:__stream]
       return if stream_name.blank?
       return unless payload[:status] == "ok"
 

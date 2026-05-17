@@ -24,7 +24,7 @@ module Islands
 end
 
 class NotificationsTest < ArchipelagoTestCase
-  DummyContext = Struct.new(:user, :request, :params, :session)
+  DummyContext = Struct.new(:user, :request, :params, :session, :stream)
 
   def test_emits_resolve_notification
     payloads = []

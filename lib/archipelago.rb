@@ -45,6 +45,15 @@ module Archipelago
       Broadcasts.broadcast(stream_name, props: props, version: version)
     end
 
+    def authorize_stream?(connection:, stream_name:, params: {})
+      authorizer = configuration.stream_authorizer
+      return true unless configuration.require_stream_authorization || authorizer
+
+      return false if configuration.require_stream_authorization && authorizer.nil?
+
+      authorizer.call(connection: connection, stream_name: stream_name, params: params)
+    end
+
     def instrument(event, payload = {}, &block)
       ActiveSupport::Notifications.instrument(event, payload, &block)
     end
@@ -59,6 +68,8 @@ require "archipelago/context"
 require "archipelago/security/origin_validator"
 require "archipelago/security/redirect_validator"
 require "archipelago/action"
+require "archipelago/pundit_adapter"
+require "archipelago/cancan_adapter"
 require "archipelago/resolver"
 require "archipelago/broadcasts"
 require "archipelago/channel"

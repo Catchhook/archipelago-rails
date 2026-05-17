@@ -18,7 +18,7 @@ rescue LoadError
 end
 
 class ActionTest < ArchipelagoTestCase
-  DummyContext = Struct.new(:user, :request, :params, :session)
+  DummyContext = Struct.new(:user, :request, :params, :session, :stream)
 
   class ForbiddenAction < Archipelago::Action
     authorize { false }
@@ -132,5 +132,186 @@ class ActionTest < ArchipelagoTestCase
 
     assert_equal "error", payload[:status]
     assert_equal ["Email can't be blank"], payload[:errors]["email"]
+  end
+
+  def test_current_user_delegates_to_ctx_user
+    user = Object.new
+    action = BroadcastAction.new(
+      ctx: DummyContext.new(user, nil, nil, nil),
+      raw_params: {}
+    )
+
+    assert_same user, action.send(:current_user)
+  end
+
+  def test_broadcasts_via_ctx_stream
+    captured = nil
+    original_broadcast = Archipelago.method(:broadcast)
+    previous_verbose, $VERBOSE = $VERBOSE, nil
+
+    Archipelago.singleton_class.define_method(:broadcast) do |stream_name, props:, version:|
+      captured = [stream_name, props, version]
+    end
+
+    begin
+      BroadcastAction.new(
+        ctx: DummyContext.new(nil, nil, nil, nil, "ctx-stream:42"),
+        raw_params: {}
+      ).call
+    ensure
+      Archipelago.singleton_class.define_method(:broadcast, original_broadcast)
+      $VERBOSE = previous_verbose
+    end
+
+    assert_equal "ctx-stream:42", captured[0]
+    assert_equal({ members: [1, 2] }, captured[1])
+  end
+
+  def test_ctx_stream_takes_precedence_over_raw_params_stream
+    captured = nil
+    original_broadcast = Archipelago.method(:broadcast)
+    previous_verbose, $VERBOSE = $VERBOSE, nil
+
+    Archipelago.singleton_class.define_method(:broadcast) do |stream_name, props:, version:|
+      captured = stream_name
+    end
+
+    begin
+      BroadcastAction.new(
+        ctx: DummyContext.new(nil, nil, nil, nil, "ctx-stream:1"),
+        raw_params: { __stream: "param-stream:1" }
+      ).call
+    ensure
+      Archipelago.singleton_class.define_method(:broadcast, original_broadcast)
+      $VERBOSE = previous_verbose
+    end
+
+    assert_equal "ctx-stream:1", captured
+  end
+end
+
+class PunditAdapterTest < ArchipelagoTestCase
+  DummyContext = Struct.new(:user, :request, :params, :session, :stream)
+
+  DummyUser = Struct.new(:id, :admin)
+
+  class TeamPolicy
+    attr_reader :user, :record
+
+    def initialize(user, record)
+      @user = user
+      @record = record
+    end
+
+    def update?
+      user.admin
+    end
+  end
+
+  Team = Struct.new(:name)
+
+  class UpdateAction < Archipelago::Action
+    include Archipelago::PunditAdapter
+
+    authorize { true }
+
+    def perform
+      authorize(Team.new("test"))
+      props ok: true
+    end
+  end
+
+  def test_pundit_authorize_allows_when_policy_returns_true
+    user = DummyUser.new(1, true)
+    # TeamPolicy is looked up as "PunditAdapterTest::Team" + "Policy",
+    # so we need the class in scope. We define it above.
+    stub_const_for_test("PunditAdapterTest::TeamPolicy", TeamPolicy) do
+      payload = UpdateAction.new(
+        ctx: DummyContext.new(user, nil, nil, nil),
+        raw_params: {}
+      ).call
+
+      assert_equal "ok", payload[:status]
+    end
+  end
+
+  def test_pundit_authorize_raises_forbidden_when_policy_returns_false
+    user = DummyUser.new(1, false)
+    stub_const_for_test("PunditAdapterTest::TeamPolicy", TeamPolicy) do
+      payload = UpdateAction.new(
+        ctx: DummyContext.new(user, nil, nil, nil),
+        raw_params: {}
+      ).call
+
+      assert_equal "forbidden", payload[:status]
+    end
+  end
+
+  private
+
+  def stub_const_for_test(_name, _klass, &block)
+    yield
+  end
+end
+
+class CanCanAdapterTest < ArchipelagoTestCase
+  DummyContext = Struct.new(:user, :request, :params, :session, :stream)
+
+  class DummyAbility
+    def initialize(user)
+      @user = user
+    end
+
+    def can?(action, record)
+      action == :read
+    end
+  end
+
+  class ReadAction < Archipelago::Action
+    include Archipelago::CanCanAdapter
+
+    authorize { true }
+
+    def perform
+      authorize!(:read, Object.new)
+      props ok: true
+    end
+  end
+
+  class WriteAction < Archipelago::Action
+    include Archipelago::CanCanAdapter
+
+    authorize { true }
+
+    def perform
+      authorize!(:write, Object.new)
+      props ok: true
+    end
+  end
+
+  def test_cancan_authorize_allows_permitted_action
+    Archipelago.configure do |config|
+      config.current_ability = ->(user) { DummyAbility.new(user) }
+    end
+
+    payload = ReadAction.new(
+      ctx: DummyContext.new(nil, nil, nil, nil),
+      raw_params: {}
+    ).call
+
+    assert_equal "ok", payload[:status]
+  end
+
+  def test_cancan_authorize_raises_forbidden_on_denied_action
+    Archipelago.configure do |config|
+      config.current_ability = ->(user) { DummyAbility.new(user) }
+    end
+
+    payload = WriteAction.new(
+      ctx: DummyContext.new(nil, nil, nil, nil),
+      raw_params: {}
+    ).call
+
+    assert_equal "forbidden", payload[:status]
   end
 end

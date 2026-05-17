@@ -9,13 +9,26 @@ else
     def stream_from(*); end
     def reject; end
     def params = {}
+    def connection; end
   end
 end
 
 channel_class = Class.new(base_channel) do
   def subscribed
     stream_name = verified_stream_name
-    reject unless stream_name
+    unless stream_name
+      reject
+      return
+    end
+
+    unless Archipelago.authorize_stream?(
+      connection: connection,
+      stream_name: stream_name,
+      params: params.except(:channel, :stream_name)
+    )
+      reject
+      return
+    end
 
     stream_from(stream_name)
   end

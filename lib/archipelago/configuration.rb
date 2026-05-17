@@ -8,7 +8,10 @@ module Archipelago
                   :authorize_by_default,
                   :strict_origin_check,
                   :allowed_redirect_hosts,
-                  :version_source
+                  :version_source,
+                  :stream_authorizer,
+                  :require_stream_authorization,
+                  :current_ability
 
     def initialize
       @root_namespace = "Islands"
@@ -18,6 +21,9 @@ module Archipelago
       @strict_origin_check = false
       @allowed_redirect_hosts = []
       @version_source = -> { (Process.clock_gettime(Process::CLOCK_REALTIME, :millisecond)).to_i }
+      @stream_authorizer = nil
+      @require_stream_authorization = false
+      @current_ability = nil
     end
   end
 end

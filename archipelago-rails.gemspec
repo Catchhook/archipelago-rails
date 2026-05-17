@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |spec|
   spec.name = "archipelago-rails"
-  spec.version = "0.1.0"
+  spec.version = "0.2.0"
   spec.authors = ["Archipelago"]
   spec.email = ["dev@archipelago.local"]
 

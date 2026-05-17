@@ -15,6 +15,13 @@ module Archipelago
       :strip,
       :downcase,
       :upcase,
+      :in,
+      :format,
+      :min,
+      :max,
+      :empty_as_nil,
+      :of,
+      :validate,
       keyword_init: true
     )
 
@@ -23,7 +30,8 @@ module Archipelago
         @param_definitions ||= {}
       end
 
-      def param(name, type, required: false, default: MISSING, strip: false, downcase: false, upcase: false)
+      def param(name, type, required: false, default: MISSING, strip: false, downcase: false, upcase: false,
+                in: nil, format: nil, min: nil, max: nil, empty_as_nil: false, of: nil, validate: nil)
         symbol_name = name.to_sym
 
         param_definitions[symbol_name] = ParamDefinition.new(
@@ -33,7 +41,14 @@ module Archipelago
           default: default,
           strip: strip,
           downcase: downcase,
-          upcase: upcase
+          upcase: upcase,
+          in: binding.local_variable_get(:in),
+          format: format,
+          min: min,
+          max: max,
+          empty_as_nil: empty_as_nil,
+          of: of,
+          validate: validate
         )
 
         define_method(symbol_name) do
@@ -53,6 +68,10 @@ module Archipelago
       self.class.param_definitions.each_value do |definition|
         raw_value = fetch_param(raw_params, definition.name)
 
+        if definition.empty_as_nil && empty_string?(raw_value)
+          raw_value = nil
+        end
+
         if blank_value?(raw_value)
           if definition.default != MISSING
             coerced[definition.name] = definition.default.respond_to?(:call) ? definition.default.call : definition.default
@@ -65,7 +84,12 @@ module Archipelago
 
         begin
           coerced_value = coerce_value(raw_value, definition)
-          coerced[definition.name] = coerced_value
+          validation_error = run_validations(coerced_value, definition)
+          if validation_error
+            errors[definition.name.to_s] << validation_error
+          else
+            coerced[definition.name] = coerced_value
+          end
         rescue ArgumentError, TypeError, JSON::ParserError
           errors[definition.name.to_s] << "is invalid"
         end
@@ -84,8 +108,16 @@ module Archipelago
       value.nil? || (value.respond_to?(:empty?) && value.empty?)
     end
 
+    def empty_string?(value)
+      value.is_a?(String) && value.strip.empty?
+    end
+
     def coerce_value(raw_value, definition)
       value = cast(raw_value, definition.type)
+
+      if definition.type == :array && definition.of
+        value = value.map { |element| cast(element, definition.of) }
+      end
 
       return value unless value.is_a?(String)
 
@@ -93,6 +125,33 @@ module Archipelago
       value = value.downcase if definition.downcase
       value = value.upcase if definition.upcase
       value
+    end
+
+    def run_validations(value, definition)
+      if definition.in && !definition.in.include?(value)
+        return "is not included in the list"
+      end
+
+      if definition.format && value.is_a?(String) && !value.match?(definition.format)
+        return "is invalid"
+      end
+
+      if definition.min
+        comparable = value.respond_to?(:length) ? value.length : value
+        return "is too small" if comparable < definition.min
+      end
+
+      if definition.max
+        comparable = value.respond_to?(:length) ? value.length : value
+        return "is too large" if comparable > definition.max
+      end
+
+      if definition.validate
+        custom_error = definition.validate.call(value)
+        return custom_error if custom_error.is_a?(String)
+      end
+
+      nil
     end
 
     def cast(value, type)

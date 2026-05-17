@@ -35,8 +35,24 @@ module Archipelago
         request: request,
         params: params,
         session: session,
-        user: current_archipelago_user
+        user: current_archipelago_user,
+        stream: extract_stream_name
       )
+    end
+
+    def extract_stream_name
+      from_header = request.headers["X-Archipelago-Stream"].presence
+      return from_header if from_header
+
+      # Backwards compat: fall back to __stream in params with deprecation warning.
+      from_params = island_params[:__stream].presence
+      if from_params
+        ActiveSupport::Deprecation.warn(
+          "Passing __stream in the request payload is deprecated. " \
+          "Use the X-Archipelago-Stream header instead."
+        )
+      end
+      from_params
     end
 
     def current_archipelago_user
@@ -131,7 +147,7 @@ module Archipelago
       return [] unless handler_class.respond_to?(:param_definitions)
 
       handler_class.param_definitions.values.map do |definition|
-        {
+        entry = {
           name: definition.name.to_s,
           type: definition.type.to_s,
           required: definition.required,
@@ -142,6 +158,14 @@ module Archipelago
             upcase: definition.upcase
           }
         }
+        entry[:in] = definition.in.to_a if definition.in
+        entry[:format] = definition.format.inspect if definition.format
+        entry[:min] = definition.min if definition.min
+        entry[:max] = definition.max if definition.max
+        entry[:empty_as_nil] = true if definition.empty_as_nil
+        entry[:of] = definition.of.to_s if definition.of
+        entry[:validate] = true if definition.validate
+        entry
       end
     end
 
